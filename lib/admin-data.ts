@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase"
+import { supabase, isMockMode } from "@/lib/supabase"
 
 // ============================================
 // TYPES
@@ -67,6 +67,7 @@ export interface UserRoleData {
 // ============================================
 
 export async function getCurrentUserRole(): Promise<UserRole | null> {
+    if (isMockMode) return 'super_admin';
     try {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return null
@@ -135,6 +136,24 @@ export async function getAllBookings(filters?: {
     paymentStatus?: PaymentStatus
 }): Promise<AdminBooking[]> {
     try {
+        if (isMockMode) {
+            return [
+                {
+                    id: 'mock-1',
+                    created_at: new Date().toISOString(),
+                    date: new Date().toISOString().split('T')[0],
+                    time_slot: '10:00',
+                    court_id: 'court_1',
+                    user_name: 'Mock Super Star',
+                    user_mobile: '0123456789',
+                    price_lkr: 1500,
+                    status: 'confirmed',
+                    payment_status: 'paid',
+                    payment_method: 'cash'
+                }
+            ] as AdminBooking[];
+        }
+
         let query = supabase
             .from('bookings')
             .select('*')
@@ -417,6 +436,59 @@ export async function getAvailableSlots(date: string): Promise<string[]> {
     } catch (err) {
         console.error('Error fetching available slots:', err)
         return []
+    }
+}
+
+// ============================================
+// SLOT CLOSURES
+// ============================================
+
+
+export async function getClosures(startDate?: string): Promise<SlotClosure[]> {
+    try {
+        let query = supabase
+            .from('slot_closures')
+            .select('*')
+            .order('date', { ascending: true })
+            .order('time_slot', { ascending: true })
+
+        if (startDate) {
+            query = query.gte('date', startDate)
+        }
+
+        const { data, error } = await query
+        if (error) throw error
+        return data || []
+    } catch (err) {
+        console.error('Error fetching closures:', err)
+        return []
+    }
+}
+
+export async function createClosure(closure: Partial<SlotClosure>): Promise<boolean> {
+    try {
+        const { error } = await supabase
+            .from('slot_closures')
+            .insert([closure])
+        if (error) throw error
+        return true
+    } catch (err) {
+        console.error('Error creating closure:', err)
+        return false
+    }
+}
+
+export async function deleteClosure(id: string): Promise<boolean> {
+    try {
+        const { error } = await supabase
+            .from('slot_closures')
+            .delete()
+            .eq('id', id)
+        if (error) throw error
+        return true
+    } catch (err) {
+        console.error('Error deleting closure:', err)
+        return false
     }
 }
 

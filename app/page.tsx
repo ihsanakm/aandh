@@ -1,6 +1,8 @@
 import { BookingWidget } from "@/components/booking/booking-widget";
+import { FoodCourtSection } from "@/components/food-court/food-court-section";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -15,7 +17,9 @@ export default function Home() {
             <span className="font-bold tracking-tight">A&H Futsal</span>
           </div>
           <div className="hidden sm:block">
-            <Button variant="ghost" size="sm">Admin Login</Button>
+            <Link href="/admin">
+              <Button variant="ghost" size="sm">Admin Login</Button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -96,6 +100,9 @@ export default function Home() {
             ))}
           </div>
         </section>
+
+        {/* Food Court Section */}
+        <FoodCourtSection />
 
         {/* Testimonials Section */}
         <section className="mt-32 mb-16">

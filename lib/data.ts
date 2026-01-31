@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase"
+import { supabase, isMockMode } from "@/lib/supabase"
 
 export type TimeSlot = {
     id: string;
@@ -47,6 +47,11 @@ export const BASE_SLOTS: TimeSlot[] = generateSlots();
 export async function getSlots(date: Date): Promise<TimeSlot[]> {
     const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
 
+    if (isMockMode) {
+        console.log("Mock Mode: Returning available slots.");
+        return BASE_SLOTS;
+    }
+
     try {
         const { data: bookings, error } = await supabase
             .from('bookings')
@@ -66,7 +71,7 @@ export async function getSlots(date: Date): Promise<TimeSlot[]> {
             // If table doesn't exist, return all slots as available (fallback mode)
             if (error.code === 'PGRST116' || error.message.includes('relation') || error.message.includes('does not exist')) {
                 console.warn("⚠️ Database table 'bookings' not found. Running in fallback mode with all slots available.");
-                console.warn("Please run the schema.sql file in your Supabase SQL Editor to create the required tables.");
+                console.warn("Please run the schema-admin.sql and schema-food-court.sql files in your Supabase SQL Editor.");
                 return BASE_SLOTS; // All available
             }
 
@@ -102,6 +107,23 @@ export async function createBooking(booking: {
 }) {
     try {
         const dateStr = new Date(booking.date).toISOString().split('T')[0];
+
+        if (isMockMode) {
+            console.log("Mock Mode: Simulating booking.");
+            // Simulate a successful booking
+            return {
+                id: 'mock-id-' + Date.now(),
+                date: dateStr,
+                slotId: booking.startTime,
+                startTime: booking.startTime,
+                endTime: booking.endTime,
+                userName: booking.userName,
+                userMobile: booking.userMobile,
+                status: 'confirmed',
+                paymentStatus: 'unpaid',
+                totalPrice: 0
+            } as Booking;
+        }
 
         // 1. Identify all 1-hour slots in the range
         // The range is [startTime, endTime) -- inclusive of start, exclusive of end
@@ -175,6 +197,8 @@ export async function createBooking(booking: {
 }
 
 export async function getAllBookings() {
+    if (isMockMode) return [];
+
     const { data, error } = await supabase
         .from('bookings')
         .select('*')

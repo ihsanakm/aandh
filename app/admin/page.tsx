@@ -12,12 +12,12 @@ import {
     Clock,
     Users,
     TrendingUp,
-    Download
+    Download,
+    Utensils
 } from 'lucide-react'
 import {
     checkAdminAccess,
     getBookingStats,
-    getTotalIncome,
     type BookingStats
 } from '@/lib/admin-data'
 
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
     const checkAccess = async () => {
         const hasAccess = await checkAdminAccess()
         if (!hasAccess) {
-            router.push('/')
+            router.push('/login')
             return
         }
         setLoading(false)
@@ -47,31 +47,33 @@ export default function AdminDashboard() {
 
     const loadStats = async () => {
         const today = new Date()
+        const todayStr = today.toISOString().split('T')[0]
         let startDate: string | undefined
+        let endDate: string | undefined
 
         switch (dateRange) {
             case 'today':
-                startDate = today.toISOString().split('T')[0]
+                startDate = todayStr
+                endDate = todayStr
                 break
             case 'week':
                 const weekAgo = new Date(today)
                 weekAgo.setDate(weekAgo.getDate() - 7)
                 startDate = weekAgo.toISOString().split('T')[0]
+                endDate = todayStr
                 break
             case 'month':
                 const monthAgo = new Date(today)
                 monthAgo.setMonth(monthAgo.getMonth() - 1)
                 startDate = monthAgo.toISOString().split('T')[0]
+                endDate = todayStr
                 break
         }
 
-        const [statsData, income] = await Promise.all([
-            getBookingStats(startDate),
-            getTotalIncome(startDate)
-        ])
+        const statsData = await getBookingStats(startDate, endDate)
 
         setStats(statsData)
-        setTotalIncome(income)
+        setTotalIncome(statsData?.total_income || 0)
     }
 
     if (loading) {
@@ -86,19 +88,22 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-background p-6">
+        <div className="min-h-screen bg-background p-4 md:p-6">
             <div className="mx-auto max-w-7xl space-y-6">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="space-y-4">
                     <div>
-                        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-                        <p className="text-muted-foreground">A&H Futsal Management</p>
+                        <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
+                        <p className="text-sm text-muted-foreground">A&H Futsal Management</p>
                     </div>
-                    <div className="flex gap-2">
+
+                    {/* Date Range Filters - Mobile Optimized */}
+                    <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
                         <Button
                             variant={dateRange === 'today' ? 'default' : 'outline'}
                             onClick={() => setDateRange('today')}
                             size="sm"
+                            className="whitespace-nowrap"
                         >
                             Today
                         </Button>
@@ -106,6 +111,7 @@ export default function AdminDashboard() {
                             variant={dateRange === 'week' ? 'default' : 'outline'}
                             onClick={() => setDateRange('week')}
                             size="sm"
+                            className="whitespace-nowrap"
                         >
                             Week
                         </Button>
@@ -113,6 +119,7 @@ export default function AdminDashboard() {
                             variant={dateRange === 'month' ? 'default' : 'outline'}
                             onClick={() => setDateRange('month')}
                             size="sm"
+                            className="whitespace-nowrap"
                         >
                             Month
                         </Button>
@@ -120,6 +127,7 @@ export default function AdminDashboard() {
                             variant={dateRange === 'all' ? 'default' : 'outline'}
                             onClick={() => setDateRange('all')}
                             size="sm"
+                            className="whitespace-nowrap"
                         >
                             All Time
                         </Button>
@@ -127,7 +135,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Income</CardTitle>
@@ -190,7 +198,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <Card className="cursor-pointer hover:border-primary transition-colors"
                         onClick={() => router.push('/admin/bookings')}>
                         <CardHeader>
@@ -277,6 +285,21 @@ export default function AdminDashboard() {
                         <CardContent>
                             <p className="text-sm text-muted-foreground">
                                 View free slots and availability
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="cursor-pointer hover:border-primary transition-colors"
+                        onClick={() => router.push('/admin/food')}>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Utensils className="h-5 w-5" />
+                                Food Court
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground">
+                                Manage stalls and menu items
                             </p>
                         </CardContent>
                     </Card>
