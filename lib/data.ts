@@ -27,6 +27,23 @@ export function formatTime12h(time24: string) {
     return `${h12}:${m.toString().padStart(2, '0')} ${period}`;
 }
 
+export function formatTimeRange(startTime24: string) {
+    const [h, m] = startTime24.split(':').map(Number);
+
+    // Start Time
+    const startPeriod = h >= 12 ? 'PM' : 'AM';
+    const startH12 = h % 12 || 12;
+    const startStr = `${startH12}:${m.toString().padStart(2, '0')} ${startPeriod}`;
+
+    // End Time (Assuming 1 hour duration)
+    const endH = (h + 1) % 24;
+    const endPeriod = endH >= 12 ? 'PM' : 'AM';
+    const endH12 = endH % 12 || 12;
+    const endStr = `${endH12}:${m.toString().padStart(2, '0')} ${endPeriod}`;
+
+    return `${startStr} - ${endStr}`;
+}
+
 // Helper to generate 24h slots with 1 hour intervals
 const generateSlots = () => {
     const slots: TimeSlot[] = [];
@@ -48,7 +65,6 @@ export async function getSlots(date: Date): Promise<TimeSlot[]> {
     const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
 
     if (isMockMode) {
-        console.log("Mock Mode: Returning available slots.");
         return BASE_SLOTS;
     }
 
@@ -109,7 +125,6 @@ export async function createBooking(booking: {
         const dateStr = new Date(booking.date).toISOString().split('T')[0];
 
         if (isMockMode) {
-            console.log("Mock Mode: Simulating booking.");
             // Simulate a successful booking
             return {
                 id: 'mock-id-' + Date.now(),

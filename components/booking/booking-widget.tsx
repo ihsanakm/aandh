@@ -177,7 +177,7 @@ export function BookingWidget() {
                     <div className="mb-4 rounded-full bg-primary/20 p-4 ring-1 ring-primary/50">
                         <PartyPopper className="h-12 w-12 text-primary" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white">Booking Confirmed!</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Booking Confirmed!</h2>
                     <p className="mt-2 text-muted-foreground">
                         {date.toLocaleDateString()} <br />
                         {confirmedBooking.startTime && formatTime12h(confirmedBooking.startTime)} - {confirmedBooking.endTime && formatTime12h(confirmedBooking.endTime)}
@@ -221,7 +221,7 @@ export function BookingWidget() {
                         <h3 className="text-xl font-semibold">Enter Details</h3>
                     </div>
 
-                    <div className="mb-6 rounded-lg bg-white/5 p-4">
+                    <div className="mb-6 rounded-lg bg-muted p-4 text-foreground">
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Date:</span>
                             <span>{date.toLocaleDateString()}</span>
@@ -270,21 +270,21 @@ export function BookingWidget() {
     }
 
     return (
-        <div className="space-y-8 animate-in slide-in-from-left-8 fade-in">
+        <div className="space-y-5 sm:space-y-8 animate-in slide-in-from-left-8 fade-in overflow-hidden">
             {/* Date Picker */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white px-1">Select Date</h3>
+            <div className="space-y-3 sm:space-y-4">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground px-1">Select Date</h3>
                 <HorizontalDatePicker selectedDate={date} onSelect={setDate} />
             </div>
 
             {/* Slots */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white px-1 flex justify-between items-center">
+            <div className="space-y-3 sm:space-y-4">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground px-1 flex justify-between items-center">
                     Select Time
-                    <span className="text-xs font-normal text-muted-foreground">Single Court</span>
+                    <span className="text-[10px] sm:text-xs font-normal text-muted-foreground">Single Court</span>
                 </h3>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                     <TimeSlotSelect
                         label="Start Time"
                         placeholder="Start"
@@ -306,24 +306,19 @@ export function BookingWidget() {
                         onSelect={setEndTime}
                     />
                 </div>
-
-
             </div>
 
-            {/* Action Bar */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-xl border-t border-white/10 sm:relative sm:border-0 sm:bg-transparent text-center z-10">
+            {/* Action Button */}
+            <div className="pt-2">
                 <Button
                     size="lg"
-                    className="w-full max-w-md shadow-lg shadow-primary/25"
+                    className="w-full shadow-lg shadow-primary/25 h-11 sm:h-12 text-sm sm:text-base"
                     disabled={!startTime || !endTime || !isValidRange}
                     onClick={() => setStage('details')}
                 >
-                    {isValidRange ? "Continue" : "Select Available Range"}
+                    Continue
                 </Button>
             </div>
-
-            {/* Spacer for fixed bottom bar on mobile */}
-            <div className="h-20 sm:hidden"></div>
         </div>
     )
 }

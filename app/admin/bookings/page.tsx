@@ -46,7 +46,7 @@ import {
     type PaymentStatus,
     type PaymentMethod
 } from '@/lib/admin-data'
-import { formatTime12h } from '@/lib/data'
+import { formatTime12h, formatTimeRange } from '@/lib/data'
 import jsPDF from 'jspdf'
 
 export default function BookingsManagement() {
@@ -68,7 +68,7 @@ export default function BookingsManagement() {
         status: '' as BookingStatus,
         payment_status: '' as PaymentStatus,
         payment_method: '' as PaymentMethod | undefined,
-        price_lkr: 0,
+        price_lkr: 0 as number | string,
         notes: ''
     })
 
@@ -134,7 +134,12 @@ export default function BookingsManagement() {
     const handleSaveEdit = async () => {
         if (!selectedBooking) return
 
-        const success = await updateBooking(selectedBooking.id, editForm)
+        const payload = {
+            ...editForm,
+            price_lkr: typeof editForm.price_lkr === 'string' ? parseFloat(editForm.price_lkr) || 0 : editForm.price_lkr
+        }
+
+        const success = await updateBooking(selectedBooking.id, payload)
         if (success) {
             alert('Booking updated successfully!')
             setEditDialogOpen(false)
@@ -211,7 +216,7 @@ export default function BookingsManagement() {
         doc.setFont("helvetica", "bold")
         doc.text("Time:", 20, yPos)
         doc.setFont("helvetica", "normal")
-        doc.text(formatTime12h(booking.time_slot), 70, yPos)
+        doc.text(formatTimeRange(booking.time_slot), 70, yPos)
 
         yPos += lineHeight
         doc.setFont("helvetica", "bold")
@@ -371,7 +376,7 @@ export default function BookingsManagement() {
                         {/* Mobile View - Cards */}
                         <div className="md:hidden space-y-4">
                             {filteredBookings.map((booking) => (
-                                <Card key={booking.id} className="border-white/10">
+                                <Card key={booking.id} className="border-border">
                                     <CardContent className="p-4 space-y-3">
                                         <div className="flex items-start justify-between">
                                             <div>
@@ -413,7 +418,7 @@ export default function BookingsManagement() {
                                             </div>
                                             <div>
                                                 <p className="text-muted-foreground">Time</p>
-                                                <p className="font-medium">{formatTime12h(booking.time_slot)}</p>
+                                                <p className="font-medium">{formatTimeRange(booking.time_slot)}</p>
                                             </div>
                                             <div>
                                                 <p className="text-muted-foreground">Price</p>
@@ -425,7 +430,7 @@ export default function BookingsManagement() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                                        <div className="flex items-center justify-between pt-2 border-t border-border">
                                             <span className="text-sm text-muted-foreground">Payment</span>
                                             {getPaymentBadge(booking.payment_status)}
                                         </div>
@@ -459,7 +464,7 @@ export default function BookingsManagement() {
                                     {filteredBookings.map((booking) => (
                                         <tr key={booking.id} className="border-b hover:bg-muted/50">
                                             <td className="p-2">{new Date(booking.date).toLocaleDateString()}</td>
-                                            <td className="p-2">{formatTime12h(booking.time_slot)}</td>
+                                            <td className="p-2">{formatTimeRange(booking.time_slot)}</td>
                                             <td className="p-2">{booking.user_name}</td>
                                             <td className="p-2">{booking.user_mobile}</td>
                                             <td className="p-2">LKR {booking.price_lkr.toLocaleString()}</td>
@@ -571,8 +576,14 @@ export default function BookingsManagement() {
                                 <label className="text-sm font-medium">Price (LKR)</label>
                                 <Input
                                     type="number"
-                                    value={editForm.price_lkr || 0}
-                                    onChange={(e) => setEditForm({ ...editForm, price_lkr: parseFloat(e.target.value) || 0 })}
+                                    value={editForm.price_lkr}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setEditForm({
+                                            ...editForm,
+                                            price_lkr: val === '' ? '' : parseFloat(val)
+                                        })
+                                    }}
                                 />
                             </div>
                             <div>

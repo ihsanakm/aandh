@@ -366,14 +366,64 @@ export async function getBookingStats(
     endDate?: string
 ): Promise<BookingStats | null> {
     try {
-        const { data, error } = await supabase
-            .rpc('get_booking_stats', {
-                start_date: startDate || null,
-                end_date: endDate || null
-            })
 
-        if (error) throw error
-        return data?.[0] || null
+        // Build query with date filters - also fetch date for debugging
+        let query = supabase
+            .from('bookings')
+            .select('date, status, payment_status, price_lkr')
+
+        if (startDate) {
+            query = query.gte('date', startDate)
+        }
+        if (endDate) {
+            query = query.lte('date', endDate)
+        }
+
+        const { data, error } = await query
+
+        if (error) {
+            console.error('Error fetching bookings for stats:', error)
+            // Return mock stats if in mock mode or table doesn't exist
+            if (isMockMode || error.code === 'PGRST116') {
+                return {
+                    total_bookings: 1,
+                    confirmed_bookings: 1,
+                    cancelled_bookings: 0,
+                    completed_bookings: 0,
+                    paid_bookings: 1,
+                    unpaid_bookings: 0,
+                    total_income: 1500
+                }
+            }
+            return null
+        }
+
+        if (!data || data.length === 0) {
+            return {
+                total_bookings: 0,
+                confirmed_bookings: 0,
+                cancelled_bookings: 0,
+                completed_bookings: 0,
+                paid_bookings: 0,
+                unpaid_bookings: 0,
+                total_income: 0
+            }
+        }
+
+        // Calculate stats from the fetched data
+        const stats: BookingStats = {
+            total_bookings: data.length,
+            confirmed_bookings: data.filter(b => b.status === 'confirmed').length,
+            cancelled_bookings: data.filter(b => b.status === 'cancelled').length,
+            completed_bookings: data.filter(b => b.status === 'completed').length,
+            paid_bookings: data.filter(b => b.payment_status === 'paid').length,
+            unpaid_bookings: data.filter(b => b.payment_status === 'unpaid' || b.payment_status === 'pending').length,
+            total_income: data
+                .filter(b => b.payment_status === 'paid')
+                .reduce((sum, b) => sum + (b.price_lkr || 0), 0)
+        }
+
+        return stats
     } catch (err) {
         console.error('Error fetching booking stats:', err)
         return null

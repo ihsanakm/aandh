@@ -1,24 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  /* Dark Theme Default */
-  --background: #0f120f;
-  /* Very dark green/black */
-  --foreground: #ededed;
+  /* Softer Light Theme Base */
+  --background: #F4F7F9;
+  --foreground: #0F1419;
 
-  --primary: #4ade80;
-  /* Vibrant Green */
-  --primary-foreground: #022c22;
+  /* Brand Colors */
+  --primary: #25A300;
+  --primary-foreground: #FFFFFF;
 
-  --card: #161b16;
-  /* Slightly lighter dark */
-  --card-foreground: #ededed;
+  --secondary: #0056D2;
+  --secondary-foreground: #FFFFFF;
 
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
+  --accent: #FF6B35;
+  --accent-foreground: #FFFFFF;
 
-  --border: #27272a;
-  --ring: #4ade80;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+
+  --card: #FFFFFF;
+  --card-foreground: #0F1419;
+
+  --muted: #E9EEF2;
+  --muted-foreground: #64748B;
+
+  --border: #D1D9E2;
+  --input: #D1D9E2;
+  --ring: #25A300;
+
+  --radius: 0.75rem;
+}
+
+.dark {
+  /* Dark Theme Base */
+  --background: #0F1419;
+  /* Dark Navy/Charcoal */
+  --foreground: #F0F4F8;
+  /* Bright White-ish */
+
+  /* Brand Colors */
+  --primary: #39FF14;
+  /* Neon Lime Green */
+  --primary-foreground: #000000;
+
+  --secondary: #0066FF;
+  /* Electric Blue */
+  --secondary-foreground: #FFFFFF;
+
+  --accent: #FF6B35;
+  /* Vibrant Orange */
+  --accent-foreground: #FFFFFF;
+
+  --destructive: #FF006E;
+  /* Hot Pink/Red for errors or heavy alerts */
+  --destructive-foreground: #FFFFFF;
+
+  --card: #151A21;
+  /* Slightly lighter than bg */
+  --card-foreground: #F0F4F8;
+
+  --muted: #1E2732;
+  --muted-foreground: #94A3B8;
+
+  --border: #2C3545;
+  --input: #2C3545;
+  --ring: #39FF14;
 }
 
 @theme inline {
@@ -26,27 +72,98 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-input: var(--input);
   --color-ring: var(--ring);
 
   --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Montserrat', sans-serif;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Custom Animations */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 3s infinite;
+  --animate-slide-up: slide-up 0.5s ease-out forwards;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes pulse-glow {
+
+    0%,
+    100% {
+      box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+    }
+
+    50% {
+      box-shadow: 0 0 40px rgba(57, 255, 20, 0.5);
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading, sans-serif);
+  letter-spacing: -0.02em;
 }
 
 /* Utilities */
 .glass {
-  background: rgba(22, 27, 22, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(21, 26, 33, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .no-scrollbar::-webkit-scrollbar {

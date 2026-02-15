@@ -142,16 +142,16 @@ export function FoodCourtSection() {
 
     if (loading) {
         return (
-            <section className="mt-32">
-                <div className="mb-12 text-center">
-                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Refuel at Our Food Court</h2>
-                    <div className="mt-4 flex justify-center gap-2">
-                        <div className="h-2 w-24 animate-pulse rounded bg-white/10"></div>
+            <section className="mt-0">
+                <div className="mb-8 sm:mb-12 text-center">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground">Refuel at Our Food Court</h2>
+                    <div className="mt-3 sm:mt-4 flex justify-center gap-2">
+                        <div className="h-2 w-24 animate-pulse rounded bg-muted"></div>
                     </div>
                 </div>
-                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-64 rounded-2xl bg-white/5 animate-pulse"></div>
+                <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="h-48 sm:h-64 rounded-xl sm:rounded-2xl bg-muted animate-pulse"></div>
                     ))}
                 </div>
             </section>
@@ -159,15 +159,15 @@ export function FoodCourtSection() {
     }
 
     return (
-        <section className="mt-32">
-            <div className="mb-12 text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Refuel at Our Food Court</h2>
-                <p className="mt-4 text-lg text-muted-foreground">Grab a bite or a refreshing drink after your game.</p>
+        <section className="mt-0">
+            <div className="mb-8 sm:mb-12 text-center">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground">Refuel at Our Food Court</h2>
+                <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground">Grab a bite or a refreshing drink after your game.</p>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {stalls.map((stall) => (
-                    <div key={stall.id} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-card transition-all hover:scale-105 hover:border-primary/50">
+                    <div key={stall.id} className="group relative overflow-hidden rounded-xl sm:rounded-2xl border border-border bg-card transition-all hover:scale-105 hover:border-primary/50">
                         <div className="aspect-[4/3] w-full overflow-hidden">
                             <Image
                                 src={stall.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c'}
@@ -177,20 +177,20 @@ export function FoodCourtSection() {
                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                         </div>
-                        <div className="p-4">
-                            <div className="mb-2 flex items-center justify-between">
-                                <h3 className="font-bold text-white line-clamp-1">{stall.name}</h3>
-                                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                        <div className="p-3 sm:p-4">
+                            <div className="mb-1.5 sm:mb-2 flex items-start sm:items-center justify-between gap-1 flex-col sm:flex-row">
+                                <h3 className="font-bold text-foreground line-clamp-1 text-sm sm:text-base">{stall.name}</h3>
+                                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-primary whitespace-nowrap">
                                     {stall.cuisine}
                                 </span>
                             </div>
-                            <p className="mb-3 text-sm text-zinc-400 line-clamp-2">{stall.description}</p>
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <p className="mb-2 sm:mb-3 text-xs sm:text-sm text-muted-foreground line-clamp-2">{stall.description}</p>
+                            <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                     <Utensils className="h-3 w-3" />
                                     Stall
                                 </span>
-                                <span className="font-medium text-white">{stall.price_range}</span>
+                                <span className="font-medium text-foreground">{stall.price_range}</span>
                             </div>
                         </div>
                     </div>

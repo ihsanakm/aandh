@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { ModeToggle } from '@/components/theme-toggle'
 import {
     Calendar,
     DollarSign,
@@ -47,7 +48,7 @@ export function MobileNav() {
             <Button
                 variant="ghost"
                 size="icon"
-                className="fixed top-4 right-4 z-50 md:hidden bg-background/80 backdrop-blur-sm border border-white/10"
+                className="fixed top-4 right-4 z-50 md:hidden bg-background/80 backdrop-blur-sm border border-border"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -64,7 +65,7 @@ export function MobileNav() {
             {/* Mobile Sidebar */}
             <div
                 className={`
-                    fixed top-0 right-0 h-full w-64 bg-background border-l border-white/10 z-40
+                    fixed top-0 right-0 h-full w-64 bg-background border-l border-border z-40
                     transform transition-transform duration-300 ease-in-out md:hidden
                     ${isOpen ? 'translate-x-0' : 'translate-x-full'}
                 `}
@@ -99,19 +100,24 @@ export function MobileNav() {
                         })}
                     </nav>
 
-                    <Button
-                        variant="outline"
-                        className="w-full mt-4"
-                        onClick={handleLogout}
-                    >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Log Out
-                    </Button>
+                    <div className="flex gap-2 mt-4">
+                        <ModeToggle />
+                        <Button
+                            variant="outline"
+                            className="flex-1"
+                            onClick={handleLogout}
+                        >
+                            <LogOut className="h-4 w-4 mr-2" />
+                            Log Out
+                        </Button>
+                    </div>
                 </div>
             </div>
 
+
+
             {/* Desktop Sidebar */}
-            <div className="hidden md:block fixed left-0 top-0 h-full w-64 bg-background border-r border-white/10 z-30">
+            <div className="hidden md:block fixed left-0 top-0 h-full w-64 bg-background border-r border-border z-30">
                 <div className="flex flex-col h-full p-6">
                     <div className="mb-8">
                         <h2 className="text-xl font-bold">Admin Panel</h2>
@@ -141,14 +147,17 @@ export function MobileNav() {
                         })}
                     </nav>
 
-                    <Button
-                        variant="outline"
-                        className="w-full mt-4"
-                        onClick={handleLogout}
-                    >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Log Out
-                    </Button>
+                    <div className="flex gap-2 mt-4 border-t border-border pt-4">
+                        <ModeToggle />
+                        <Button
+                            variant="outline"
+                            className="flex-1"
+                            onClick={handleLogout}
+                        >
+                            <LogOut className="h-4 w-4 mr-2" />
+                            Log Out
+                        </Button>
+                    </div>
                 </div>
             </div>
         </>

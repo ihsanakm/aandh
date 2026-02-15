@@ -17,27 +17,27 @@ interface TimeSlotSelectProps {
 export function TimeSlotSelect({ slots, selectedSlotId, onSelect, isLoading, label, placeholder }: TimeSlotSelectProps) {
     if (isLoading) {
         return (
-            <div className="flex h-12 w-full items-center justify-center rounded-lg border border-white/10 bg-card">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <div className="flex h-10 sm:h-12 w-full items-center justify-center rounded-lg border border-white/10 bg-card">
+                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-primary" />
             </div>
         )
     }
 
     return (
-        <div className="relative">
-            {label && <label className="mb-1.5 block text-xs font-medium text-muted-foreground ml-1">{label}</label>}
+        <div className="relative min-w-0">
+            {label && <label className="mb-1 sm:mb-1.5 block text-[10px] sm:text-xs font-medium text-muted-foreground ml-1">{label}</label>}
             <div className="relative">
                 <select
                     value={selectedSlotId || ""}
                     onChange={(e) => onSelect(e.target.value)}
                     className={cn(
-                        "h-12 w-full appearance-none rounded-xl border border-white/10 bg-card px-4 pl-4 pr-10 text-base outline-none transition-colors",
+                        "h-10 sm:h-12 w-full appearance-none rounded-lg sm:rounded-xl border border-white/10 bg-card px-2 sm:px-4 pr-7 sm:pr-10 text-sm sm:text-base outline-none transition-colors",
                         "focus:border-primary focus:ring-1 focus:ring-primary",
                         "disabled:opacity-50",
                         !selectedSlotId && "text-muted-foreground"
                     )}
                 >
-                    <option value="" disabled>{placeholder || "Select Time..."}</option>
+                    <option value="" disabled>{placeholder || "Select..."}</option>
                     {slots.map((slot) => (
                         <option
                             key={slot.id}
@@ -49,8 +49,8 @@ export function TimeSlotSelect({ slots, selectedSlotId, onSelect, isLoading, lab
                         </option>
                     ))}
                 </select>
-                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    <ChevronDown className="h-5 w-5" />
+                <div className="pointer-events-none absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
             </div>
         </div>
