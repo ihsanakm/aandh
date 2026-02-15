@@ -37,7 +37,7 @@ export default function Reports() {
     }
 
     const handleDownloadCSV = async () => {
-        const bookings = await getAllBookings(undefined, undefined)
+        const bookings = await getAllBookings()
         const csv = generateBookingCSV(bookings)
         downloadCSV(csv, `Full_Report_${new Date().toISOString().split('T')[0]}.csv`)
     }

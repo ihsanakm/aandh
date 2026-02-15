@@ -4,39 +4,44 @@ import * as React from "react"
 import { ChevronDown, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+// Update SelectContextType
 interface SelectContextType {
     value?: string
     onValueChange?: (value: string) => void
     open: boolean
     setOpen: (open: boolean) => void
+    disabled?: boolean
 }
 
 const SelectContext = React.createContext<SelectContextType>({
     open: false,
     setOpen: () => { },
+    disabled: false
 })
 
-export function Select({ value, onValueChange, children }: {
+export function Select({ value, onValueChange, children, disabled }: {
     value?: string
     onValueChange?: (value: string) => void
     children: React.ReactNode
+    disabled?: boolean
 }) {
     const [open, setOpen] = React.useState(false)
 
     return (
-        <SelectContext.Provider value={{ value, onValueChange, open, setOpen }}>
+        <SelectContext.Provider value={{ value, onValueChange, open, setOpen, disabled }}>
             <div className="relative">{children}</div>
         </SelectContext.Provider>
     )
 }
 
 export function SelectTrigger({ className, children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-    const { open, setOpen } = React.useContext(SelectContext)
+    const { open, setOpen, disabled } = React.useContext(SelectContext)
 
     return (
         <button
             type="button"
-            onClick={() => setOpen(!open)}
+            onClick={() => !disabled && setOpen(!open)}
+            disabled={disabled}
             className={cn(
                 "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
                 className

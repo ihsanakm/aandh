@@ -51,7 +51,7 @@ export default function SlotClosures() {
         setSubmitting(true)
         const closureData = {
             date,
-            time_slot: timeSlot === 'full_day' ? null : timeSlot,
+            time_slot: timeSlot === 'full_day' ? undefined : timeSlot,
             reason,
             court_id: 'court_1', // Default for now
             is_active: true

@@ -116,7 +116,7 @@ export default function UserManagement() {
                                                     onValueChange={(val) => handleRoleUpdate(user.user_id, val as UserRole)}
                                                 >
                                                     <SelectTrigger className="w-[140px] ml-auto">
-                                                        <SelectValue />
+                                                        <SelectValue placeholder="Select role" />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="user">User</SelectItem>
