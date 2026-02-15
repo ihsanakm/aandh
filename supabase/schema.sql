@@ -25,7 +25,21 @@ CREATE TABLE IF NOT EXISTS public.user_roles (
 -- Enable RLS
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
--- Safely Recreate Policies
+-- FUNCTION TO CHECK ROLE WITHOUT RECURSION
+-- This function runs with Security Definer privileges (bypassing RLS)
+CREATE OR REPLACE FUNCTION public.get_my_role()
+RETURNS user_role_enum AS $$
+BEGIN
+  RETURN (
+    SELECT role FROM public.user_roles
+    WHERE user_id = auth.uid()
+    LIMIT 1
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- UPDATED POLICIES USING THE HELPER FUNCTION
 DROP POLICY IF EXISTS "Users can read own role" ON public.user_roles;
 CREATE POLICY "Users can read own role" ON public.user_roles
     FOR SELECT USING (auth.uid() = user_id);
@@ -33,30 +47,22 @@ CREATE POLICY "Users can read own role" ON public.user_roles
 DROP POLICY IF EXISTS "Admins can read all roles" ON public.user_roles;
 CREATE POLICY "Admins can read all roles" ON public.user_roles
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM public.user_roles 
-            WHERE user_id = auth.uid() 
-            AND role IN ('super_admin', 'moderator')
-        )
+        public.get_my_role() IN ('super_admin', 'moderator')
     );
 
 DROP POLICY IF EXISTS "Super Admins can update roles" ON public.user_roles;
 CREATE POLICY "Super Admins can update roles" ON public.user_roles
     FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM public.user_roles 
-            WHERE user_id = auth.uid() 
-            AND role = 'super_admin'
-        )
+        public.get_my_role() = 'super_admin'
     );
 
--- Functions & Triggers
+-- Functions & Triggers (Safe for re-run)
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO public.user_roles (user_id, email, role)
     VALUES (new.id, new.email, 'user')
-    ON CONFLICT (user_id) DO NOTHING; -- Handle potential duplicates
+    ON CONFLICT (user_id) DO NOTHING;
     RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -89,7 +95,6 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
-
 CREATE TABLE IF NOT EXISTS public.bookings (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -110,15 +115,11 @@ CREATE TABLE IF NOT EXISTS public.bookings (
 -- Enable RLS
 ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
 
--- Policies
+-- Policies (Updated to use helper function)
 DROP POLICY IF EXISTS "Admins can do everything on bookings" ON public.bookings;
 CREATE POLICY "Admins can do everything on bookings" ON public.bookings
     FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM public.user_roles 
-            WHERE user_id = auth.uid() 
-            AND role IN ('super_admin', 'moderator')
-        )
+        public.get_my_role() IN ('super_admin', 'moderator')
     );
 
 DROP POLICY IF EXISTS "Public can view confirmed bookings (availability)" ON public.bookings;
@@ -151,14 +152,10 @@ CREATE POLICY "Public can view pricing" ON public.pricing
 DROP POLICY IF EXISTS "Admins can update pricing" ON public.pricing;
 CREATE POLICY "Admins can update pricing" ON public.pricing
     FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM public.user_roles 
-            WHERE user_id = auth.uid() 
-            AND role IN ('super_admin', 'moderator')
-        )
+        public.get_my_role() IN ('super_admin', 'moderator')
     );
 
--- Seed Pricing Data (IDEMPOTENT with ON CONFLICT)
+-- Seed Pricing Data
 INSERT INTO public.pricing (time_slot, price_lkr, is_prime_time) VALUES
 ('06:00', 1500, false), ('07:00', 1500, false), ('08:00', 1500, false),
 ('09:00', 1500, false), ('10:00', 1500, false), ('11:00', 1500, false),
@@ -194,11 +191,7 @@ CREATE POLICY "Public can view closures" ON public.slot_closures
 DROP POLICY IF EXISTS "Admins can manage closures" ON public.slot_closures;
 CREATE POLICY "Admins can manage closures" ON public.slot_closures
     FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM public.user_roles 
-            WHERE user_id = auth.uid() 
-            AND role IN ('super_admin', 'moderator')
-        )
+        public.get_my_role() IN ('super_admin', 'moderator')
     );
 
 
@@ -227,16 +220,10 @@ CREATE POLICY "Public can view food stalls" ON public.food_stalls
 DROP POLICY IF EXISTS "Admins can manage food stalls" ON public.food_stalls;
 CREATE POLICY "Admins can manage food stalls" ON public.food_stalls
     FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM public.user_roles 
-            WHERE user_id = auth.uid() 
-            AND role IN ('super_admin', 'moderator')
-        )
+        public.get_my_role() IN ('super_admin', 'moderator')
     );
 
--- Seed Food Stalls (Basic Check to avoid pure duplicates if rerunning, though no unique constraint on name)
--- We'll just insert if table is empty for safety, or you can clear and re-insert.
--- For now, let's leave it as is, or use a check.
+-- Seed Food Stalls
 INSERT INTO public.food_stalls (name, description, cuisine, price_range, image_url)
 SELECT 'Burger Barn', 'Juicy gourmet burgers and fries.', 'American', '$$', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=600&auto=format&fit=crop'
 WHERE NOT EXISTS (SELECT 1 FROM public.food_stalls WHERE name = 'Burger Barn');
@@ -262,7 +249,6 @@ WHERE NOT EXISTS (SELECT 1 FROM public.food_stalls WHERE name = 'Pizza Point');
 -- 6. FUNCTIONS (RPC)
 -- ============================================
 
--- Function to calculate total income dynamically
 CREATE OR REPLACE FUNCTION get_total_income(start_date DATE DEFAULT NULL, end_date DATE DEFAULT NULL)
 RETURNS NUMERIC AS $$
 DECLARE
